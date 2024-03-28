@@ -3,6 +3,7 @@
 I've bought recorded videos on iqihang.com, and I want to download them to localhost and watch with PotPlayer, which means I could use self-defined hotkeys😋.
 So I looked into the page, found that it used baijiayun.com service to host video. 
 
+Here explains how the video is loaded:
   - First the page get course list from iqihang, then use course-id (I forgot actual name) and session data to get `uid` and `token`, which is required for baijiayun APIs.
   - Then, the page used JSONP to get `playUrl` data from baijiayun API, whose response contains an encoded `bjcloudvod://` link.
   - Next, the script decoded it, acquire actual video data, and play through `bplayer`, a player created by bjcloud.
