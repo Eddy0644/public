@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         QiHang Education Video URL Fetcher
 // @namespace    http://tampermonkey.net/
-// @version      1.0.0
-// @description  Fetch and decrypt video URLs from specific requests
+// @version      1.0.1
+// @description  Fetch and decrypt video URLs from QiHang Education with bjcloudvod.
 // @author       Eddy0644
 // @match        https://www.iqihang.com/ark/record/*
 // @grant        none
@@ -128,6 +128,14 @@ var bb = function (e) {
     };
 
     observeRequests();
+
+
+
+
+
+
+
+
 
 
 })();
