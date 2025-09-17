@@ -1,0 +1,52 @@
+The prompt I used to bootstrap the script, cause I was a noob in userscript programming.
+
+Help me write a tampermonkey-compatible script with below description:
+1. After installed, listen to "https://www.iqihang.com/ark/record/*" url;
+2. On such page, listen for certain GET request to url like this "https://www.baijiayun.com/vod/video/getPlayUrl?vid=195258375&sid=&render=jsonp&client_type=h5&ver=2&user_number=undefined&token=<redacted>&use_encrypt=1&supports_format=ev2,ev1,flv,mp4&callback=__jp0" (you could use ...getPlayUrl to catch)
+3. If you discovered such request, first display a floating container on top-right of the page, with label "Parsing..." 
+4. replace some parameters in url: "use_encrypt=0" and "supports_format=mp4", and request that to get callback jsonp code.
+5. Change jsonp to json, log all output to console, and find the first encoded string like "bjcloudvod://R2l9hYY8<redacted>sd0hhg3foY2", for later use 
+6. I will insert a decode function in the end of my prompt, you should just use decryptVideo() to decode the string above, then you will get a url pointing to a video.
+7. And you should grab "body > div > div.app-content > div > header".innerText, as desired filename of the video.
+8. Change the floating container, replace label to a button "Copy", upon click, use `prompt(0,filename)` to let user copy the video url, after confirm, open the video url to let user download it.
+9. If you have any question, please ask me before working out the code.
+10. In addition, 1, the "use_encrypt=0" should be replaced over original, not appending; 2, the callback fn may not be __jp0, there may be __jp1 or else. 3, add more log into code. 4, please sniff that JSONP request use any way you like.
+[Below are decode func, help me wrap into single function]
+var i = function (e, t) {
+    var r = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+    var n = r.indexOf(e.charAt(t));
+    if (-1 === n) throw "Cannot decode base64";
+    return n
+};
+var decryptVideo = function(e) {
+    if ("" === e || 0 !== e.indexOf("bjcloudvod://"))
+        return "";
+    var t = (e = e.slice("bjcloudvod://".length, e.length).replace(/-/g, "+").replace(/_/g, "/")).length % 4;
+    2 === t ? e += "==" : 3 === t && (e += "=");
+    var n = (e = bb(e)).charCodeAt(0) % 8;
+    e = e.slice(1, e.length);
+    for (var i, a = [], s = 0; i = e[s]; s++) {
+        var o = s % 4 * n + s % 3 + 1;
+        a.push(String.fromCharCode(i.charCodeAt(0) - o))
+    }
+    return a.join("").replace("https:", "").replace("http:", "")
+};
+var bb = function (e) {
+    var t, n, r = 0,
+        a = e.length,
+        s = [];
+    if (e = String(e), 0 === a) return e;
+    if (a % 4 != 0) throw "Cannot decode base64";
+    for ("=" === e.charAt(a - 1) && (r = 1, "=" === e.charAt(a - 2) && (r = 2), a -= 4), t = 0; t <
+         a; t += 4) n = i(e, t) << 18 | i(e, t + 1) << 12 | i(e, t + 2) << 6 | i(e, t + 3), s.push(
+        String.fromCharCode(n >> 16, n >> 8 & 255, 255 & n));
+    switch (r) {
+        case 1:
+            n = i(e, t) << 18 | i(e, t + 1) << 12 | i(e, t + 2) << 6, s.push(String.fromCharCode(
+                n >> 16, n >> 8 & 255));
+            break;
+        case 2:
+            n = i(e, t) << 18 | i(e, t + 1) << 12, s.push(String.fromCharCode(n >> 16))
+    }
+    return s.join("")
+};
